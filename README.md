@@ -60,6 +60,21 @@ This Clinic ERP system consists of multiple microservices working together to pr
 
 ---
 
+## Access Services
+Patient API: http://localhost:8000/docs
+
+Scheduling Service: http://localhost:8001/api/
+
+AI Memory Service: http://localhost:8002/docs
+
+Billing Service: http://localhost:8003/docs
+
+Airflow: http://localhost:8080 (admin/admin)
+
+Grafana: http://localhost:3000 (admin/admin)
+
+Prometheus: http://localhost:9090
+
 ### 1. Clone and Setup
 
 ```bash
