@@ -1,20 +1,26 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Numeric, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, ForeignKey, Boolean, Float
 from sqlalchemy.sql import func
 from database import Base
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    role = Column(String)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class Invoice(Base):
     __tablename__ = "invoices"
 
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, index=True)
-    appointment_id = Column(Integer, index=True)
-    invoice_number = Column(String, unique=True, index=True)
-    total_amount = Column(Numeric(10, 2))
-    tax_amount = Column(Numeric(10, 2), default=0)
-    discount_amount = Column(Numeric(10, 2), default=0)
-    status = Column(String, default="pending")  # pending, paid, cancelled
-    due_date = Column(DateTime)
-    idempotency_key = Column(String, unique=True, index=True)
+    total_amount = Column(Float)
+    status = Column(String, default="pending")  # pending, paid, overdue
+    idempotency_key = Column(String, unique=True, index=True, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -23,13 +29,11 @@ class Payment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     invoice_id = Column(Integer, ForeignKey("invoices.id"))
-    amount = Column(Numeric(10, 2))
-    payment_method = Column(String)  # cash, credit_card, debit_card, insurance
-    transaction_id = Column(String, unique=True, index=True)
-    status = Column(String, default="pending")  # pending, completed, failed, refunded
-    idempotency_key = Column(String, unique=True, index=True)
+    amount = Column(Float)
+    payment_method = Column(String)  # credit_card, bank_transfer, etc.
+    status = Column(String, default="completed") # completed, pending, failed
+    idempotency_key = Column(String, unique=True, index=True, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class InsuranceClaim(Base):
     __tablename__ = "insurance_claims"
@@ -37,10 +41,8 @@ class InsuranceClaim(Base):
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, index=True)
     invoice_id = Column(Integer, ForeignKey("invoices.id"))
-    insurance_provider = Column(String)
-    policy_number = Column(String)
-    claim_amount = Column(Numeric(10, 2))
-    status = Column(String, default="submitted")  # submitted, approved, rejected, paid
-    idempotency_key = Column(String, unique=True, index=True)
+    claim_amount = Column(Float)
+    status = Column(String, default="submitted") # submitted, approved, denied
+    idempotency_key = Column(String, unique=True, index=True, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now()) 
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
